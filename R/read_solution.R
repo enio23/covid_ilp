@@ -1,4 +1,4 @@
-read_solution <- function(cplexSolutionFileName = "results_cplex.txt", variables = variables){
+read_solution <- function(cplexSolutionFileName = "results_cplex.txt", variables = variables, logFile = "cplex.log"){
   
   solution <- read.delim(file = cplexSolutionFileName)
   solution[, 1] <- as.character(solution[, 1])
@@ -41,9 +41,17 @@ read_solution <- function(cplexSolutionFileName = "results_cplex.txt", variables
   names(vv) <- nn
   
   #
+  log <- read.delim(file = logFile)
+  idx <- which(grepl(pattern = "Solution time", x = log[, 1]))
+  time <- as.character(log[idx, 1])
+  time <- strsplit(x = time, split = " = ", fixed = TRUE)[[1]][2]
+  time <- as.numeric(strsplit(x = time, split = " sec.", fixed = TRUE)[[1]][1])
+  
+  #
   returnList <- list()
   returnList[[length(returnList)+1]] <- objective_value
   returnList[[length(returnList)+1]] <- vv
-  names(returnList) <- c("objective value", "solution")
+  returnList[[length(returnList)+1]] <- time
+  names(returnList) <- c("objective value", "solution", "time")
   return(returnList)
 }

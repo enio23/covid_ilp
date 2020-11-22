@@ -1,4 +1,4 @@
-generate_network <- function(nHubs = nHubs, maxClinics = maxClinics, maxDemands = maxDemands){
+generate_network <- function(nHubs = nHubs, minClinics = minClinics, maxClinics = maxClinics, maxDemands = maxDemands){
   
   #
   mm <- matrix(data = , nrow = 1, ncol = 2)
@@ -8,7 +8,7 @@ generate_network <- function(nHubs = nHubs, maxClinics = maxClinics, maxDemands 
   toBind[, 2] <- paste0("H", 1:nHubs, "_")
   mm <- rbind(mm, toBind)
   
-  nClinics <- sample.int(n = maxClinics, size = nHubs)
+  nClinics <- round(x = runif(n = nHubs, min = minClinics, max = maxClinics))
   
   cnt <- 1
   for(ii in 1:nHubs){
