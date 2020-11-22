@@ -106,19 +106,29 @@ write_constraints <- function(transport = transport, variables = variables, netw
   }
   for(ii in 1:length(transport)){
     idx1 <- which(grepl(pattern = names(transport)[ii], x = variables$var_exp, fixed = TRUE))
-    for(jj in 1:nrow(network$network)){
-      idx2 <- which(grepl(pattern = paste0(network$network$source[jj], "=", network$network$target[jj]), 
-                          x = variables$var_exp, fixed = TRUE))
-      idx3 <- which(grepl(pattern = "Assigned", x = variables$var_exp, fixed = TRUE))
-      idx <- intersect(x = idx1, y = intersect(x = idx2, idx3))
-      
-      cc5 <- c(cc5, paste0(variables$var[idx], " <= ", aa[ii]))
-    }
+    idx2 <- which(grepl(pattern = "Assigned", x = variables$var_exp, fixed = TRUE))
+    idx <- intersect(x = idx1, y = idx2)
+    
+    vv1 <- paste0(" + ", variables$var[idx])
+    vv1 <- paste(vv1, collapse = "")
+    vv1 <- substring(text = vv1[1], first = 4, last = nchar(vv1))
+    vv1 <- paste0(vv1, " <= ", aa[ii])
+    
+    cc5 <- c(cc5, vv1)
+    
+    # for(jj in 1:nrow(network$network)){
+    #   idx2 <- which(grepl(pattern = paste0(network$network$source[jj], "=", network$network$target[jj]), 
+    #                       x = variables$var_exp, fixed = TRUE))
+    #   idx3 <- which(grepl(pattern = "Assigned", x = variables$var_exp, fixed = TRUE))
+    #   idx <- intersect(x = idx1, y = intersect(x = idx2, idx3))
+    #   
+    #   cc5 <- c(cc5, paste0(variables$var[idx], " <= ", aa[ii]))
+    # }
   }
   
   #
   cc <- c(cc1, cc2, cc3, cc4, cc5)
-  constraints <- paste0("\tc", 1:length(cc), ":", cc)
+  constraints <- paste0("\tc", 1:length(cc), ": ", cc)
   return(constraints)
   
 }

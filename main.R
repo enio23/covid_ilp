@@ -1,4 +1,6 @@
 library(ggplot2)
+library(xlsx)
+library(dplyr)
 
 #
 dir.create("output")
@@ -22,9 +24,9 @@ solutionList <- list()
 demands <- c()
 
 ## Case - 1
-network <- generate_network(nHubs = 30, minClinics = 5, maxClinics = 10, minDemands = 1000, maxDemands = 10000)
+network <- generate_network(nHubs = 30, minClinics = 5, maxClinics = 10, minDemands = 100, maxDemands = 1000)
 demands <- c(demands, sum(network$demands))
-transport <- generate_transport(network = network, availabilty = c(10, 50, 200, 200))
+transport <- generate_transport(network = network, availabilty = c(100, 500, 1000, 1000))
 variables <- create_variables(network = network, transport = transport)
 objective_function <- write_of(transport = transport, variables = variables, network = network)
 generals <- write_generals(variables = variables)
@@ -37,9 +39,9 @@ cleanup_files()
 solutionList[[length(solutionList)+1]] <- solution1
 
 ## Case - 2
-network <- generate_network(nHubs = 60, minClinics = 5, maxClinics = 10, minDemands = 1000, maxDemands = 10000)
+network <- generate_network(nHubs = 60, minClinics = 5, maxClinics = 10, minDemands = 100, maxDemands = 1000)
 demands <- c(demands, sum(network$demands))
-transport <- generate_transport(network = network, availabilty = c(10, 50, 200, 200), expandFactor = 1.5)
+transport <- generate_transport(network = network, availabilty = c(100, 500, 1000, 1000), expandFactor = 2)
 variables <- create_variables(network = network, transport = transport)
 objective_function <- write_of(transport = transport, variables = variables, network = network)
 generals <- write_generals(variables = variables)
@@ -52,9 +54,9 @@ cleanup_files()
 solutionList[[length(solutionList)+1]] <- solution2
 
 ## Case - 3
-network <- generate_network(nHubs = 90, minClinics = 5, maxClinics = 10, minDemands = 1000, maxDemands = 10000)
+network <- generate_network(nHubs = 100, minClinics = 5, maxClinics = 10, minDemands = 1000, maxDemands = 10000)
 demands <- c(demands, sum(network$demands))
-transport <- generate_transport(network = network, availabilty = c(10, 50, 200, 200), expandFactor = 1.75)
+transport <- generate_transport(network = network, availabilty = c(100, 500, 1000, 1000), expandFactor = 6)
 variables <- create_variables(network = network, transport = transport)
 objective_function <- write_of(transport = transport, variables = variables, network = network)
 generals <- write_generals(variables = variables)
@@ -69,7 +71,7 @@ solutionList[[length(solutionList)+1]] <- solution3
 ## Case - 4
 network <- generate_network(nHubs = 120, minClinics = 5, maxClinics = 10, minDemands = 1000, maxDemands = 10000)
 demands <- c(demands, sum(network$demands))
-transport <- generate_transport(network = network, availabilty = c(10, 50, 200, 200), expandFactor = 2)
+transport <- generate_transport(network = network, availabilty = c(100, 500, 1000, 1000), expandFactor = 5)
 variables <- create_variables(network = network, transport = transport)
 objective_function <- write_of(transport = transport, variables = variables, network = network)
 generals <- write_generals(variables = variables)
@@ -84,7 +86,7 @@ solutionList[[length(solutionList)+1]] <- solution4
 ## Case - 5
 network <- generate_network(nHubs = 150, minClinics = 5, maxClinics = 10, minDemands = 1000, maxDemands = 10000)
 demands <- c(demands, sum(network$demands))
-transport <- generate_transport(network = network, availabilty = c(10, 50, 200, 200), expandFactor = 3)
+transport <- generate_transport(network = network, availabilty = c(100, 500, 1000, 1000), expandFactor = 5)
 variables <- create_variables(network = network, transport = transport)
 objective_function <- write_of(transport = transport, variables = variables, network = network)
 generals <- write_generals(variables = variables)
@@ -97,9 +99,9 @@ cleanup_files()
 solutionList[[length(solutionList)+1]] <- solution5
 
 ## Case - 6
-network <- generate_network(nHubs = 200, minClinics = 5, maxClinics = 10, minDemands = 1000, maxDemands = 10000)
+network <- generate_network(nHubs = 180, minClinics = 5, maxClinics = 10, minDemands = 1000, maxDemands = 10000)
 demands <- c(demands, sum(network$demands))
-transport <- generate_transport(network = network, availabilty = c(10, 50, 200, 200), expandFactor = 3.5)
+transport <- generate_transport(network = network, availabilty = c(100, 500, 1000, 1000), expandFactor = 6)
 variables <- create_variables(network = network, transport = transport)
 objective_function <- write_of(transport = transport, variables = variables, network = network)
 generals <- write_generals(variables = variables)
@@ -119,9 +121,29 @@ for(ii in 1:nrow(df)){
   
   df[ii, 1] <- demands[ii]
   df[ii, 2] <- solutionList[[ii]]$`objective value`
-  df[ii, 3] <- solutionList[[ii]]$time
+  df[ii, 3] <- solutionList[[ii]]$time*1000
   
 }
 df <- as.data.frame(df)
-df$country <- rownames(df)
 
+write.xlsx2(x = df, file = "output/demands_cost_time.xls", col.names = TRUE, row.names = TRUE)
+
+##
+for(ii in 1:length(solutionList)){
+  
+  #
+  df_hubs <- matrix(data = , nrow = length(transport), ncol = 3)
+  colnames(df_hubs) <- c("vehicle_type", "n", "prop")
+  rownames(df_hubs) <- names(transport)
+  
+  df_hubs[, 1] <- names(transport)
+  idx1 <- which(grepl(pattern = "=H", x = names(solutionList[[ii]]$solution), fixed = TRUE))
+  idx2 <- which(grepl(pattern = "truck", x = names(solutionList[[ii]]$solution), fixed = TRUE))
+  idx3 <- which(grepl(pattern = "4x4", x = names(solutionList[[ii]]$solution), fixed = TRUE))
+  idx4 <- which(grepl(pattern = "car", x = names(solutionList[[ii]]$solution), fixed = TRUE))
+  idx5 <- which(grepl(pattern = "motorcycle", x = names(solutionList[[ii]]$solution), fixed = TRUE))
+  df_hubs[, 2] <- c(sum(solutionList[[1]]$solution[intersect(x = idx1, y = idx2)]),
+                    sum(solutionList[[1]]$solution[intersect(x = idx1, y = idx3)]),
+                    sum(solutionList[[1]]$solution[intersect(x = idx1, y = idx4)]),
+                    sum(solutionList[[1]]$solution[intersect(x = idx1, y = idx5)]))
+}
