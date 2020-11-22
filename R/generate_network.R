@@ -1,4 +1,8 @@
-generate_network <- function(nHubs = nHubs, minClinics = minClinics, maxClinics = maxClinics, maxDemands = maxDemands){
+generate_network <- function(nHubs = nHubs, 
+                             minClinics = minClinics, 
+                             maxClinics = maxClinics,
+                             minDemands = minDemands,
+                             maxDemands = maxDemands){
   
   #
   mm <- matrix(data = , nrow = 1, ncol = 2)
@@ -33,7 +37,7 @@ generate_network <- function(nHubs = nHubs, minClinics = minClinics, maxClinics 
   mm$target <- as.character(mm$target)
   
   #
-  demands <- sample.int(n = maxDemands, size = cnt-1)
+  demands <- round(x = runif(n = cnt-1, min = minDemands, max = maxDemands))
   names(demands) <- paste0("C", 1:(cnt-1), "_")
   
   #
